@@ -1,9 +1,34 @@
 import models.Board;
 import models.Cell;
 import models.Player;
+import stretegies.*;
 
 import java.util.*;
 
+/*
+Requirement:
+-> we are going to implement a game for n players which has option to choose name,id and symbol.
+-> number of symbols
+-> n*n boardSize
+-> winning condition(row matches/column match/ diagonal match)
+-> Undo option(optional)
+
+Classes:
+1) Game
+	List<Player> players
+	Board board;
+
+2) Player
+	String name;
+	int id;
+	Symbol symbol;
+
+3) Symbol Enum
+
+4) Board
+	int[][] board;
+
+ */
 public class TicTacToe {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -34,6 +59,11 @@ public class TicTacToe {
     }
 
     public static String startGame(Board board, List<Player> playerList, Scanner scanner, Queue<Player> playerQueue) {
+        List<WinningStretegies> stretegies = new ArrayList<>();
+        stretegies.add(new ColumnWinner(board));
+        stretegies.add(new RowWinner(board));
+        stretegies.add(new DiagonalWinner1(board));
+        stretegies.add(new DiagonalWinner2(board));
 
         while (!board.isBoardFull()) {
             Player cPlayer = playerQueue.remove();
@@ -43,12 +73,18 @@ public class TicTacToe {
 
             Cell cell = board.getBoard().get(row).get(col);
             cell.setPlayer(cPlayer);
+            for (WinningStretegies winningStretegies : stretegies) {
+                boolean isWinner = winningStretegies.execute(cPlayer.getSymbol());
+                if (isWinner) {
+                    System.out.println("Winner is:" + cPlayer.getName());
+                    return cPlayer.getName();
+                }
+            }
+
             playerQueue.add(cPlayer);
             board.display();
 
-
         }
-
         return "tie";
     }
 
